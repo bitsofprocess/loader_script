@@ -184,29 +184,45 @@ async function main() {
 
   //throw out additional columns (extraColumnsCheck)
 
-/*
 
-ITERATE THROUGH KEYS AND COLUMNS TO CREATE NEW ARRAY WITH ONLY 
-REQUIRED KEYS
-  console.log('csvKeys.length:', csvKeys.length)
-  for (l=0; l < csvKeys.length; l++) {
-    for (m=0; l < column_names.length; m++) {
-      updatedCsvArray = Object.entries(csvArray[l]).filter((key) => key.includes(column_names[m]))
-    } console.log('updatedCsvArray: ', updatedCsvArray)
+
+//ITERATE THROUGH KEYS AND COLUMNS TO CREATE NEW ARRAY WITH ONLY 
+//REQUIRED KEYS
+
+  // console.log('csvKeys.length:', csvKeys.length)
+
+  // for (let l=0; l < csvKeys.length; l++) {
+  //   for (let m=0; l < column_names.length; m++) {
+  //     updatedCsvArray = Object.entries(csvArray[l]).filter((key) => key.includes(column_names[m]))
+  //   } console.log('updatedCsvArray: ', updatedCsvArray)
+  // }
+
+  let newCsvEntries = []
+  let newKey 
+
+  for (let l=0; l < csvKeys.length - 1; l++) {
+    // for (let m=0; l < extraColumnsCheck.length - 1; m++) {
+    newKey = (Object.entries(csvArray[l]))
+    .filter((key) => !key.includes(extraColumnsCheck[0]))
+    // console.log('column_names[m]: ', column_names[m])
+    newCsvEntries.push(newKey)
+    // }
   }
+  console.log('extra columns: ', extraColumnsCheck ) 
+  console.log(newCsvEntries)
 
-*/
+  // console.log(csvArray[0])
 
   //update csv array with only required columns
-  updatedCsvArray = Object.entries(csvArray[l]).filter((key) => key.includes(column_names[m]))
+  // updatedCsvArray = Object.entries(csvArray[l]).filter((key) => key.includes(column_names[m]))
 
   //convert updated csvarray with keys/values back to object
-  updatedCsvObject = Object.fromEntries(updatedCsvArray);
+  // updatedCsvObject = Object.fromEntries(updatedCsvArray);
 
   // Object.keys(csvArray[i]).filter((key) => key.includes(column_names))
   // const updatedCsv = Object.fromEntries(Object.entries(csvArray).filter(([key]) => key.includes(extraColumnsCheck)));
-  console.log('updatedCsvArray: ', updatedCsvArray)
-  console.log('updatedCsvObject: ', updatedCsvObject)
+  // console.log('updatedCsvArray: ', updatedCsvArray)
+  // console.log('updatedCsvObject: ', updatedCsvObject)
 
 
 
