@@ -10,3 +10,15 @@ const content = {
   }
 
   console.log(content.Item.answers)
+
+  //CHECK IF VALUE EXISTS IN OBJECT
+
+  // Extract all the values from the object into an array, then use the includes() function to check.
+var theObj = { foo: "bar" };
+var hasVal = Object.values(theObj).includes("bar");
+
+//OR
+
+// Manually loop through the object and check each value
+var hasVal = false;
+for (let key in theObj) { if (theObj[key] == "SEARCH") { hasVal = true; break; }}

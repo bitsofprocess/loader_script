@@ -93,7 +93,7 @@ async function main() {
   const csvArray = await csvToJson(csvFilePath);
 
   //  Make an array with 25 elements in it, where each element is PutRequest.Item.csvArray[i]
-  /*
+
   i = 0;
 
   let obj = {};
@@ -110,8 +110,9 @@ async function main() {
 
   const csvKeys = Object.keys(csvArray[0]);
   // console.log('csvKeys:', csvKeys)
-  // console.log('csvArray:', csvArray)
+  // console.log('csvArray:', csvArray[i])
 
+/*
   const requiredColumns = csvKeys.filter(
     (column) => !column_names.includes(column)
   );
@@ -122,7 +123,6 @@ async function main() {
   }
 
  */
-  let i = 0;
 
   const dynamoContentParams = {
     Key: {
@@ -132,38 +132,38 @@ async function main() {
     AttributesToGet: column_names,
   };
 
-  await dynamodb.get(dynamoContentParams, function (err, response) {
+  dynamodb.get(dynamoContentParams, function (err, response) {
     let dynamoContent = {};
 
     if (err) console.log(err, err.stack); // an error occurred
     else {
-      console.log(response.Item); // successful response
+      response.Item; // successful response
       var keys = [],
         k = 0;
-      console.log("response: ", response);
+      // console.log("response: ", response);
 
       //GETS THE KEYS FROM AWS TABLE
       for (keys[k++] in response.Item) {
       }
-      console.log("keys: ", keys);
+      // console.log("Response Keys (Dynamo): ", keys);
     }
   });
 
   // console.log('csvArrayKeys:', Object.keys(csvArray[0]))
   //RETURNS: csv keys. Use to check against keys in dynamo table.
 
-  csvTestKeys = [
-    "id",
-    "answers",
-    "category",
-    "prompt",
-    "url",
-    "notes",
-    "comments",
-  ];
+  // csvTestKeys = [
+  //   "id",
+  //   "answers",
+  //   "category",
+  //   "prompt",
+  //   "url",
+  //   "notes",
+  //   "comments",
+  // ];
 
   //   column_namesTest = ["id", "url", "notes"];
-  const extraColumnsCheck = csvTestKeys.filter(
+  const extraColumnsCheck = csvKeys.filter(
     (key) => !column_names.includes(key)
   );
   if (extraColumnsCheck.length == 0) {
@@ -174,7 +174,7 @@ async function main() {
 
   // What columns are in column_names that are not in csvKeys? Throw out these columns from csvArray
   const missingColumnCheck = column_names.filter(
-    (column) => !csvTestKeys.includes(column)
+    (column) => !csvKeys.includes(column)
   );
   if (missingColumnCheck.length == 0) {
     console.log("No Missing Columns");
@@ -182,19 +182,37 @@ async function main() {
     console.log("Missing columns:", missingColumnCheck);
   }
 
-  //throw out additional columns
+  //throw out additional columns (extraColumnsCheck)
 
-  // var keys = [], k = 0;
-  // for (keys[k++] in dynamoContent) {
-  //   console.log(keys)
-  // }
-  //RETURNS: keys for additional info.
-  //game content still in object
+/*
 
-  //RETURNS: info about domain, service, operation, etc.
-  //game content in object at bottom.
-  /*
-    //update with new data
+ITERATE THROUGH KEYS AND COLUMNS TO CREATE NEW ARRAY WITH ONLY 
+REQUIRED KEYS
+  console.log('csvKeys.length:', csvKeys.length)
+  for (l=0; l < csvKeys.length; l++) {
+    for (m=0; l < column_names.length; m++) {
+      updatedCsvArray = Object.entries(csvArray[l]).filter((key) => key.includes(column_names[m]))
+    } console.log('updatedCsvArray: ', updatedCsvArray)
+  }
+
+*/
+
+  //update csv array with only required columns
+  updatedCsvArray = Object.entries(csvArray[l]).filter((key) => key.includes(column_names[m]))
+
+  //convert updated csvarray with keys/values back to object
+  updatedCsvObject = Object.fromEntries(updatedCsvArray);
+
+  // Object.keys(csvArray[i]).filter((key) => key.includes(column_names))
+  // const updatedCsv = Object.fromEntries(Object.entries(csvArray).filter(([key]) => key.includes(extraColumnsCheck)));
+  console.log('updatedCsvArray: ', updatedCsvArray)
+  console.log('updatedCsvObject: ', updatedCsvObject)
+
+
+
+// const newData = column_names.filter((y) => y != missingColumnCheck);
+// console.log('newData: ', newData)
+/*
 
     const newData = column_namesTest.filter((y) => y != test2);
     console.log("newData:", newData);
