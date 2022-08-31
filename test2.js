@@ -89,6 +89,7 @@ async function csvToJson(csvFilePath) {
   }
 }
 
+
 async function main() {
   const csvArray = await csvToJson(csvFilePath);
 
@@ -133,38 +134,68 @@ async function main() {
   };
 
   let dynamoContent = {}
-  dynamoContent = dynamodb.get(dynamoContentParams, function (err, data) {
+
+  dynamoContent = await dynamodb.get(dynamoContentParams, function (err, response) {
+    let dynamoContent = {}
+
     if (err) console.log(err, err.stack); // an error occurred
-    else 
-    console.log(data); // successful response
+    else {
+    dyanmoContent = console.log(response.Item); // successful response
+    var keys = [], k = 0;
+    console.log('dynamoContent1: ', dynamoContent)
+    for (keys[k++] in dynamoContent) {
+      // console.log('dynamoContent2: ', dynamoContent)
+      // console.log('keys:', keys)
+    } 
+      console.log('keys2: ', keys)
+      // console.log('dynamoContent3: ', dynamoContent)
+  } 
   });
 
-  console.log(dynamoContent.Item);
-  /*
+  // console.log('csvArrayKeys:', Object.keys(csvArray[0]))
+  //RETURNS: csv keys. Use to check against keys in dynamo table.
 
-  // if (csvKeys === "id") {
-  //     console.log("true")
-  // }
-  // if (column_names[0] === Object.keys(csvArray[0])[0]) {
-  //     console.log("match")
-  // }
-  csvKeysTest = ["id", "url"];
-  column_namesTest = ["id", "url", "notes"];
-  const test1 = csvKeysTest.filter((x) => !column_namesTest.includes(x));
-  if (test1.length == 0) {
-    console.log("All Columns Present");
-  } else {
-    console.log("Columns missing:", test1);
-  }
-  // What columns are in column_names that are not in csvKeys? Throw out these columns from csvArray
-  const test2 = column_namesTest.filter((x) => !csvKeysTest.includes(x));
-  if (test2.length == 0) {
+
+  csvTestKeys = [
+    "id",
+    "answers",
+    "category",
+    "prompt",
+    "url",
+    "notes",
+    "comments"
+  ];
+
+//   column_namesTest = ["id", "url", "notes"];
+  const extraColumnsCheck = csvTestKeys.filter((key) => !column_names.includes(key));
+  if (extraColumnsCheck.length == 0) {
     console.log("No Extra Columns");
   } else {
-    console.log("Extra columns:", test2);
+    console.log("Extra Columns:", extraColumnsCheck);
+  }
 
-    //throw out additional columns
+  // What columns are in column_names that are not in csvKeys? Throw out these columns from csvArray
+  const missingColumnCheck = column_names.filter((column) => !csvTestKeys.includes(column));
+  if (missingColumnCheck.length == 0) {
+    console.log("No Missing Columns");
+  } else {
+    console.log("Missing columns:", missingColumnCheck);
+  }
+
+  //throw out additional columns
+
+  // var keys = [], k = 0;
+  // for (keys[k++] in dynamoContent) {
+  //   console.log(keys)
+  // }
+  //RETURNS: keys for additional info. 
+  //game content still in object
+
+  //RETURNS: info about domain, service, operation, etc. 
+  //game content in object at bottom.
+/*
     //update with new data
+
     const newData = column_namesTest.filter((y) => y != test2);
     console.log("newData:", newData);
 
