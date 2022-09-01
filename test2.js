@@ -198,18 +198,31 @@ async function main() {
   // }
 
   let newCsvEntries = []
-  let newKey 
+  let newKey
+  let mArray = []
+  let newCsvArray = []
 
   for (let l=0; l < csvKeys.length - 1; l++) {
-    // for (let m=0; l < extraColumnsCheck.length - 1; m++) {
     newKey = (Object.entries(csvArray[l]))
-    .filter((key) => !key.includes(extraColumnsCheck[0]))
-    // console.log('column_names[m]: ', column_names[m])
-    newCsvEntries.push(newKey)
-    // }
+    for (let m=0; m < extraColumnsCheck.length; m++) {
+    // newCsvEntries = newKey.filter((key) => !key.includes(extraColumnsCheck[0]))
+    console.log(m)
+    }
+    // console.log('Final Key: ', newKey)
+    // console.log('m Array: ', mArray)
   }
-  console.log('extra columns: ', extraColumnsCheck ) 
-  console.log(newCsvEntries)
+  // console.log('extra columns: ', extraColumnsCheck ) 
+  let l
+  for (let m=0; m < extraColumnsCheck.length; m++) {
+    for (l=0; l < csvKeys.length - 1; l++) {
+      newCsvEntry = (Object.entries(csvArray[l]))
+      newCsvArray.push(newCsvEntry)
+    } 
+    console.log(newCsvArray)
+    // newCsvEntries = newKey.filter((key) => !key.includes(extraColumnsCheck[0]))
+    }
+
+  // console.log(newCsvEntries)
 
   // console.log(csvArray[0])
 
