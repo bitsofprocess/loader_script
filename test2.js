@@ -4,6 +4,8 @@
 // Load the AWS SDK for Node.js
 const AWS = require("aws-sdk");
 const csv = require("csvtojson");
+const { csvToJson } = require('./csvtojson');
+
 
 const csvFilePath = process.argv[2];
 const game_code = process.argv[3];
@@ -77,28 +79,48 @@ switch (game_code) {
   // default:
   // code block
 }
+async function main () {
+  const csvObject = await csvToJson(csvFilePath);
+  const csvKeys = Object.keys(csvObject[0]);
 
-async function csvToJson(csvFilePath) {
-  try {
-    const data = await csv().fromFile(csvFilePath);
+  console.log('csvObject: ', csvObject)
+  console.log('csvKeys: ', csvKeys)
 
-    // log the JSON array
-    return data;
-  } catch (err) {
-    console.log(err);
+  let extraColumns = csvKeys.filter((key) => !column_names.includes(key));
+  if (extraColumns.length == 0) {
+    console.log("No Extra Columns")
+  } else {
+    console.log("Extra Columns:", extraColumns)
   }
 }
 
-async function main() {
-  const csvArray = await csvToJson(csvFilePath);
+main()
 
-  //  Make an array with 25 elements in it, where each element is PutRequest.Item.csvArray[i]
+// const extraColumns2 = listExtraColumns(csvKeys, column_names);
+// console.log('extraColumns2: ', extraColumns2)
+/*
+// async function csvToJson(csvFilePath) {
+//   try {
+//     const data = await csv().fromFile(csvFilePath);
+
+//     // log the JSON array
+//     return data;
+//   } catch (err) {
+//     console.log(err);
+//   }
+// }
+
+async function main() {
+  const csvObject = await csvToJson(csvFilePath);
+  console.log(csvObject)
+
+  //  Make an array with 25 elements in it, where each element is PutRequest.Item.csvObject[i]
 
   i = 0;
 
   let obj = {};
   obj.PutRequest = {};
-  obj.PutRequest.Item = csvArray[i];
+  obj.PutRequest.Item = csvObject[i];
 
   // Put array as params.RequestItems.<tableName>
   const RequestItems = {};
@@ -106,27 +128,15 @@ async function main() {
   const params = {};
   params.RequestItems = RequestItems;
 
-  const id = csvArray[i].id;
+  const id = csvObject[i].id;
 
-  const csvKeys = Object.keys(csvArray[0]);
+  const csvKeys = Object.keys(csvObject[0]);
   // console.log('csvKeys:', csvKeys)
-  // console.log('csvArray:', csvArray[i])
-
-/*
-  const requiredColumns = csvKeys.filter(
-    (column) => !column_names.includes(column)
-  );
-  if (requiredColumns.length == 0) {
-    console.log("All Columns Present");
-  } else {
-    console.log("Columns missing:", requiredColumns);
-  }
-
- */
+  // console.log('csvObject:', csvObject[i])
 
   const dynamoContentParams = {
     Key: {
-      [column_names[0]]: csvArray[i][column_names[0]],
+      [column_names[0]]: csvObject[i][column_names[0]],
     },
     TableName: tableName,
     AttributesToGet: column_names,
@@ -149,19 +159,28 @@ async function main() {
     }
   });
 
-  // console.log('csvArrayKeys:', Object.keys(csvArray[0]))
+  // console.log('csvObjectKeys:', Object.keys(csvObject[0]))
   //RETURNS: csv keys. Use to check against keys in dynamo table.
-
-  const extraColumns = csvKeys.filter(
-    (key) => !column_names.includes(key)
-  );
+/*
+  const extraColumns = csvKeys.filter((key) => !column_names.includes(key));
   if (extraColumns.length == 0) {
     console.log("No Extra Columns");
   } else {
     console.log("Extra Columns:", extraColumns);
   }
+*/
 
-  // What columns are in column_names that are not in csvKeys? Throw out these columns from csvArray
+/*
+const extraColumnsCheck = csvKeys.filter(
+  (key) => !column_names.includes(key)
+);
+if (extraColumnsCheck.length == 0) {
+  console.log("No Extra Columns");
+} else {
+  console.log("Extra Columns:", extraColumnsCheck);
+}
+
+  // Identifies columns in csvObject that are not present in column_names
   const missingColumns = column_names.filter(
     (column) => !csvKeys.includes(column)
   );
@@ -173,111 +192,55 @@ async function main() {
 
   //throw out additional columns (extraColumns)
 
+  //ITERATE THROUGH KEYS AND COLUMNS TO CREATE NEW ARRAY WITH ONLY
+  //REQUIRED KEYS
+  let newCsvEntry 
 
-
-//ITERATE THROUGH KEYS AND COLUMNS TO CREATE NEW ARRAY WITH ONLY 
-//REQUIRED KEYS
-
-  // console.log('csvKeys.length:', csvKeys.length)
-
-  // for (let l=0; l < csvKeys.length; l++) {
-  //   for (let m=0; l < column_names.length; m++) {
-  //     updatedCsvArray = Object.entries(csvArray[l]).filter((key) => key.includes(column_names[m]))
-  //   } console.log('updatedCsvArray: ', updatedCsvArray)
-  // }
+  for (let j = 0; j < csvObject.length; j++) {
+    for (let l = 0; l < csvKeys.length; l++) {
+      newCsvEntry = Object.entries(csvObject[j])[l];
+      console.log('newCsvEntry: ', newCsvEntry);
+    }
+    let updatedCsvObject = Object.fromEntries(newCsvEntry);
+    // console.log(updatedCsvObject)
+  }
 
 /*
-  let newCsvArray = []
-  let l
-
-  console.)
-
-  // for (let m=0; m < extraColumns.length; m++) {
-    for (l=0; l < csvKeys.length - 1; l++) {
-      console.log('Object.entries: ', (Object.entries(csvArray[l])).filter((key) => !key.includes('notes')))
-      //.filter((key) => !key.includes(extraColumns[m]))
-      // newCsvArray.push(newCsvEntry)
-      // console.log(extraColumns[m])
-    } 
-    // console.log(newCsvArray)
-    // newCsvEntries = newKey.filter((key) => !key.includes(extraColumns[0]))
-    // }
-
-  // console.log(newCsvEntries)
-*/
-
-let newCsvEntries = []
-let newKey
-let csvKeyValueArray 
-
-for (let j=0; j< csvArray.length; j++) {
-  for (let l=0; l < csvKeys.length; l++) {
-
-    csvKeyValueArray = Object.entries(csvArray[j])[l]
-
-    if (csvKeyValueArray.includes(extraColumns[0])) {
-      console.log((csvKeyValueArray))
-    }
-
-  }
-}
-
-/*
-
-
-for (let m=0; m < extraColumns.length; m++) {
-  for (let j=0; j< csvArray.length; j++) {
-    for (let l=0; l < csvKeys.length; l++) {
-      
-      newKey = Object.entries(csvArray[j])[l]
-      .filter((key) => !key.includes(extraColumns[m]))
-      console.log(m)
-      // newCsvEntries.push(newKey)
-      // }
-      // console.log('extraColumns[m]: ', extraColumns[m])
-      // console.log(newKey)
-    }
-  }
-}
-// console.log('extra columns: ', extraColumns ) 
-// console.log(newCsvEntries)
-
-
-*/
 
   //update csv array with only required columns
-  // updatedCsvArray = Object.entries(csvArray[l]).filter((key) => key.includes(column_names[m]))
+  // updObject = Object.entries(csvObject[l]).filter((key) => key.includes(column_names[m]))
 
-  //convert updated csvarray with keys/values back to object
-  // updatedCsvObject = Object.fromEntries(updatedCsvArray);
+  //convert updated csvObject with keys/values back to object
+  // updatedCsvObject = Object.fromEntries(updatedCsvObject);
 
     //add batch load/write here?
-  }
+  
 
   //batch load
 /*
   let n = 0;
   let timeOut = null;
   let maximum_backOff = 32;
-  for (let j = 0; j < csvArray.length; j += 25) {
+  for (let j = 0; Object.length; j += 25) {
     timeOut = Math.floor(Math.random() * 1000) + 1;
     setTimeout(async () => {
       const picturesArray = [];
       for (let i = j; i < j + 25; i++) {
-        if (csvArray[i]) {
+        if (csvObject[i]) {
         }
       }
     });
 */
-    //BATCH WRITE
+//BATCH WRITE
 
-    //   dynamodb.batchWrite(params, function (err, data) {
-    //     if (err) console.log(err);
-    //     else console.log(data);
-    //   });
-    // }
-   
+//   dynamodb.batchWrite(params, function (err, data) {
+//     if (err) console.log(err);
+//     else console.log(data);
+//   });
+// }
 
-  // }
+// }
+  
 
-main();
+
+// main();
